@@ -18,12 +18,14 @@ library(RColorBrewer)
 
 setwd("~/PRTRAKR")
 prs <- read.csv("data/pRdata.csv")
-
+prs$Date=mdy(prs$Date)
+str(prs)
 # plot theme
 My_Theme = theme(
   axis.title.x = element_text(size = 18),
   axis.text.x = element_text(size = 17),
   axis.text.y = element_text(size = 17),
+  legend.text = element_text(size=14),
   axis.title.y = element_text(size = 18),
   plot.title = element_text(color = "#340fea", size = 35, face = "bold"),
   plot.subtitle = element_text(color = "#c8941b", size = 20, face = "bold"),
@@ -31,27 +33,42 @@ My_Theme = theme(
 
 ui <- fluidPage(
   
-  
-
   checkboxGroupInput("lift", "Show:",
-                c("Bench Press" = "bp",
-                  "Press"       = "press",
-                  "Squat"       = "squat",
-                  "Dead Lift"   = "dl")),
+                c("Weight"      = "Weight",
+                  "Bench_Press" = "Bench_Press",
+                  "Press"       = "Press",
+                  "Squat"       = "Squat",
+                  "Deadlift"   = "Deadlift"), selected = c("Bench_Press","Weight")),
   plotOutput("plot"),
-  # tableOutput("y"),
-  # textOutput("z"),
   DT::dataTableOutput('data')
 )
 
 server <- function(input, output, session) {
 
-  rv <- reactiveVal(prs)
+ 
+  
+  # rv <- reactiveVal(prs %>% filter(Metric %in% c("Bench_Press")) )
+  
+  # rv <- reactive({
+  #   prs %>% filter(Metric %in% c("Bench_Press"))
+  # })
+  # 
+  
+  rv <- reactive({
+    prs %>% filter(Metric %in% input$lift)
+  })
+  
+  
+  observe({print(input$lift)})
   
   output$plot <- renderPlot(
  
-    ggplot(data=rv(), aes(x=Date, y=Value)) + geom_line(aes(group=interaction(Name, Metric), color=Name, linetype=Metric), size=2.5) +
-      scale_color_brewer(palette = 'Dark2')
+    ggplot(data=rv(), aes(x=Date, y=Value)) + 
+      geom_line(aes(group=interaction(Name, Metric), color=Name, linetype=Metric), size=2.5) +
+      scale_color_brewer(palette = 'Dark2') + 
+      scale_x_date(date_breaks = "1 month") +
+      theme_minimal() +
+      My_Theme
   )
 
 
