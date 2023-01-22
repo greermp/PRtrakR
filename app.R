@@ -63,10 +63,12 @@ server <- function(input, output, session) {
   
   output$plot <- renderPlot(
  
-    ggplot(data=rv(), aes(x=Date, y=Value)) + 
+    ggplot(data=rv(), aes(x=Date, y=Value)) + geom_point(color="black", size=3.5) +
       geom_line(aes(group=interaction(Name, Metric), color=Name, linetype=Metric), size=2.5) +
       scale_color_brewer(palette = 'Dark2') + 
-      scale_x_date(date_breaks = "1 month") +
+      scale_x_date(date_breaks = "1 month", 
+                   limits = as.Date (c (floor_date(min(prs$Date), 'month'),
+                                        ceiling_date(max(prs$Date), 'month')))) + 
       theme_minimal() +
       My_Theme
   )
