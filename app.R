@@ -54,8 +54,16 @@ server <- function(input, output, session) {
   # })
   # 
   
-  rv <- reactive({
-    prs %>% filter(Metric %in% input$lift)
+  # rv <- reactive({
+  #   prs=prs %>% filter(Metric %in% input$lift)
+  # })
+  # 
+  rv <- reactiveValues(prz=prs)
+  
+  n <- reactiveVal() # create this value to store s in observe() below
+  observe({
+    s<-rv$prz %>% filter(Metric %in% input$lift)
+    n(s)
   })
   
   
@@ -63,7 +71,7 @@ server <- function(input, output, session) {
   
   output$plot <- renderPlot(
  
-    ggplot(data=rv(), aes(x=Date, y=Value)) + geom_point(color="black", size=3.5) +
+    ggplot(data=n(), aes(x=Date, y=Value)) + geom_point(color="black", size=3.5) +
       geom_line(aes(group=interaction(Name, Metric), color=Name, linetype=Metric), size=2.5) +
       scale_color_brewer(palette = 'Dark2') + 
       scale_x_date(date_breaks = "1 month", 
@@ -76,15 +84,18 @@ server <- function(input, output, session) {
 
 
   output$data <- DT::renderDataTable ({
-    DT::datatable(rv(), editable = TRUE)
+    # DT::datatable(rv(), editable = TRUE)
+    DT::datatable(n(), editable = TRUE)
+    
+        # n()
   })
   
   observeEvent(input$data_cell_edit, {
     info <- input$data_cell_edit
-    newdf <- rv()
+    newdf <- n()
     newdf[info$row, info$col] <- info$value
-    rv(newdf)
-    prs <<- rv()
+    n(newdf)
+    prs <<- n()
   })
   }
 

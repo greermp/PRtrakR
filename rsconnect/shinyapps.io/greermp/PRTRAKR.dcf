@@ -1,0 +1,13 @@
+name: PRTRAKR
+title: PRTRAKR
+username:
+account: greermp
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8096335
+bundleId: 6761440
+url: https://greermp.shinyapps.io/PRTRAKR/
+when: 1674417618.96909
+lastSyncTime: 1674417618.96909
+asMultiple: FALSE
+asStatic: FALSE
